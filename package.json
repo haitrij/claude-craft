@@ -1,0 +1,46 @@
+{
+  "name": "ccraft",
+  "version": "1.0.15",
+  "description": "Intelligent Claude Code project configurator — role-aware agents, skills, rules, MCPs, and workflows",
+  "type": "module",
+  "bin": {
+    "ccraft": "./bin/claude-craft.js"
+  },
+  "files": [
+    "bin/",
+    "src/"
+  ],
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "ai-coding",
+    "ai-agents",
+    "configurator",
+    "mcp",
+    "scaffolding",
+    "cli",
+    "agentic",
+    "code-generation",
+    "project-setup"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.10.1",
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "figlet": "^1.11.0",
+    "fs-extra": "^11.3.4",
+    "gradient-string": "^3.0.0",
+    "listr2": "^10.2.1",
+    "ora": "^8.2.0"
+  }
+}
