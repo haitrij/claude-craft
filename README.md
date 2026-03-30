@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
 
-[Getting Started](#getting-started) &bull; [How It Works](#how-it-works) &bull; [Commands](#commands) &bull; [Supported Stacks](#supported-stacks) &bull; [FAQ](#faq)
+[Getting Started](#getting-started) &bull; [How It Works](#how-it-works) &bull; [Commands](#commands) &bull; [Supported Stacks](#supported-stacks) &bull; [FAQ](#faq) 
 
 </div>
 
