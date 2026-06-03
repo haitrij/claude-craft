@@ -7,6 +7,7 @@ import {
   PROJECT_TYPES,
   SOURCE_CONTROLS,
   DOCUMENT_TOOLS,
+  PM_TOOLS,
   PERSONAS,
 } from '../constants.js';
 import { validateApiKeyFormat } from '../utils/mcp-setup.js';
@@ -225,6 +226,45 @@ export async function gatherMcpConfig(scoredMcps) {
   }
 
   return { selectedMcps, mcpKeys };
+}
+
+// ── Project management tool selection ─────────────────────────────────
+
+/**
+ * Ask which project-management tools to connect via MCP so Claude can read
+ * their tickets and docs. Optional — an empty selection skips it.
+ *
+ * Returns { documentTools: string[], documentToolsConfig: {} } where
+ * documentToolsConfig carries per-tool settings (currently the Azure DevOps
+ * organization name, which the MCP needs as a positional CLI arg).
+ */
+export async function gatherPmTools() {
+  const documentTools = await themedCheckbox({
+    message: 'Connect a project management tool? (Claude reads its tickets & docs via MCP)',
+    hint: 'Optional — select any that apply, or press Enter to skip. You\'ll log in later (most via /mcp).',
+    choices: PM_TOOLS.map((t) => ({ name: t.name, value: t.value, description: t.description })),
+  });
+
+  const documentToolsConfig = {};
+
+  // Azure DevOps needs the organization name as a positional CLI arg.
+  if (documentTools.includes('azure-devops')) {
+    const org = await themedInput({
+      message: 'Azure DevOps organization name:',
+      hint: 'e.g. "contoso" from dev.azure.com/contoso. Press Enter to skip and edit .mcp.json later.',
+      validate: (v) => {
+        const t = v.trim();
+        if (!t) return true; // allow skip → placeholder written to .mcp.json
+        if (!/^[a-zA-Z0-9][a-zA-Z0-9._ -]*$/.test(t)) return 'Enter a valid organization name.';
+        return true;
+      },
+    });
+    if (org.trim()) {
+      documentToolsConfig['azure-devops'] = { org: org.trim() };
+    }
+  }
+
+  return { documentTools, documentToolsConfig };
 }
 
 // ── MCP API key collection (standalone) ──────────────────────────────

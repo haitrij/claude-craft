@@ -15,6 +15,7 @@ import {
   gatherProjectPath,
   gatherCreateProfile,
   gatherMcpKeys,
+  gatherPmTools,
   confirmInstallation,
 } from '../prompts/gather.js';
 import { themedInput } from '../ui/prompts.js';
@@ -352,6 +353,16 @@ export async function runInstall(options = {}) {
       logger.debug(`Analysis cache write failed: ${cacheErr.message}`);
     }
 
+    // ── Project management tools (interactive only) ──────────────────
+    // Let the user connect a PM tool so Claude can read its tickets & docs
+    // via MCP. The server maps the selection to an MCP server in .mcp.json;
+    // remote servers (Jira/Confluence, Linear, Notion) authenticate via /mcp,
+    // Azure DevOps via `az login`. Skipped with --yes (defaults to none).
+    let pmTools = { documentTools: [], documentToolsConfig: {} };
+    if (!options.yes) {
+      pmTools = await gatherPmTools();
+    }
+
     // ================================================================
     // PHASE 3: Configuration
     // ================================================================
@@ -381,6 +392,8 @@ export async function runInstall(options = {}) {
           packageManager: projectInfo.packageManager,
           detectedFiles: detected._rootFiles || [],
           databases: projectInfo.databases || detected.databases || [],
+          documentTools: pmTools.documentTools,
+          documentToolsConfig: pmTools.documentToolsConfig,
         },
         { projectPath: targetDir },
       );
@@ -624,6 +637,25 @@ export async function runInstall(options = {}) {
     } else {
       logger.success('Done! Claude Code is ready.');
     }
+
+    // ── Project management MCP — login guidance ──────────────────────
+    const oauthMcps = selectedMcps.filter((m) => m.authVia === 'oauth');
+    const azureMcps = selectedMcps.filter((m) => m.authVia === 'azure-cli');
+    if (oauthMcps.length > 0 || azureMcps.length > 0) {
+      console.log();
+      logger.info('Project management MCP — one more step to authenticate:');
+      if (oauthMcps.length > 0) {
+        console.log(
+          chalk.dim(`    Open Claude Code here, run ${chalk.bold('/mcp')}, then log in to: ${oauthMcps.map((m) => m.id).join(', ')}`),
+        );
+      }
+      if (azureMcps.length > 0) {
+        console.log(
+          chalk.dim(`    Azure DevOps: run ${chalk.bold('az login')} so the MCP can authenticate (set your org in ${chalk.bold('.mcp.json')} if you skipped it).`),
+        );
+      }
+    }
+
     console.log();
   } catch (err) {
     if (

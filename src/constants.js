@@ -72,6 +72,19 @@ export const DOCUMENT_TOOLS = [
   { name: 'Other', value: 'other' },
 ];
 
+// ── Project-management MCP tools ─────────────────────────────────────
+// Tools we can wire up with an official MCP server during install. The
+// `value` must match a key in the server's PM_TOOL_MCPS map. `auth` tells
+// the post-install flow how to guide the user: 'oauth' → log in via /mcp,
+// 'azure-cli' → `az login`.
+export const PM_TOOLS = [
+  { name: 'Jira (Atlassian)', value: 'jira', description: 'Issues & projects — official remote MCP; log in with /mcp', auth: 'oauth' },
+  { name: 'Confluence (Atlassian)', value: 'confluence', description: 'Docs & pages — same Atlassian server as Jira; log in with /mcp', auth: 'oauth' },
+  { name: 'Linear', value: 'linear', description: 'Issues, projects, cycles — official remote MCP; log in with /mcp', auth: 'oauth' },
+  { name: 'Notion', value: 'notion', description: 'Pages, databases, docs — official remote MCP; log in with /mcp', auth: 'oauth' },
+  { name: 'Azure DevOps', value: 'azure-devops', description: 'Work items, boards, wikis, repos — local MCP; uses az login', auth: 'azure-cli' },
+];
+
 // ── Step 2: Project types ─────────────────────────────────────────────
 
 export const PROJECT_TYPES = [
