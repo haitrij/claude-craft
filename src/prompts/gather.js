@@ -307,7 +307,7 @@ export async function confirmInstallation(summary) {
 export function getDefaults(detected) {
   return {
     intents: ['implementing', 'debugging', 'refactoring', 'testing', 'reviewing'],
-    sourceControl: 'github',
+    sourceControl: 'none',
     documentTools: [],
     name: detected.name || 'my-project',
     description: detected.description || '',

@@ -23,14 +23,6 @@ const MCP_CAPABILITIES = {
     capability: 'Live documentation lookup for libraries and frameworks',
     intents: ['Live documentation lookup'],
   },
-  github: {
-    capability: 'GitHub PRs, issues, code search, Dependabot alerts',
-    intents: ['GitHub PRs, issues, code search'],
-  },
-  gitlab: {
-    capability: 'GitLab MRs, issues, code search, dependency scanning',
-    intents: ['GitLab MRs, issues, code search'],
-  },
   postgres: { capability: 'PostgreSQL queries and schema inspection', intents: ['Database queries'] },
   mongodb: { capability: 'MongoDB queries and collection inspection', intents: ['Database queries'] },
   mssql: { capability: 'SQL Server queries and schema inspection', intents: ['Database queries'] },

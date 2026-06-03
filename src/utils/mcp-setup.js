@@ -50,11 +50,6 @@ export function checkPrerequisites() {
 // ── API Key Validation ───────────────────────────────────────────────
 
 const KEY_VALIDATORS = {
-  github: {
-    keyName: 'GITHUB_PERSONAL_ACCESS_TOKEN',
-    check: (v) => /^(ghp_|github_pat_)/.test(v),
-    hint: 'GitHub PATs typically start with ghp_ or github_pat_',
-  },
   supabase: {
     keyName: 'SUPABASE_ACCESS_TOKEN',
     check: (v) => /^sbp_/.test(v) || v.startsWith('eyJ'),
@@ -131,11 +126,6 @@ const KEY_VALIDATORS = {
     keyName: 'SHORTCUT_API_TOKEN',
     check: (v) => v.length >= 32,
     hint: 'Shortcut API tokens are UUID-format strings (32+ characters)',
-  },
-  gitlab: {
-    keyName: 'GITLAB_PERSONAL_ACCESS_TOKEN',
-    check: (v) => /^glpat-/.test(v) || v.length >= 20,
-    hint: 'GitLab PATs typically start with glpat-',
   },
   'trello-key': {
     keyName: 'TRELLO_API_KEY',

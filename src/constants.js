@@ -39,15 +39,13 @@ export const VIBE_DEFAULTS = {
   // Intentionally narrowed to core intents for non-technical users.
   // Full intent list is available in the developer path via gatherUserProfile().
   intents: ['implementing', 'debugging'],
-  sourceControl: 'github',
+  sourceControl: 'none',
   documentTools: [],
 };
 
 // ── Source control platforms ─────────────────────────────────────────
 
 export const SOURCE_CONTROLS = [
-  { name: 'GitHub', value: 'github', description: 'GitHub.com or GitHub Enterprise' },
-  { name: 'GitLab', value: 'gitlab', description: 'GitLab.com or self-hosted' },
   { name: 'Bitbucket', value: 'bitbucket', description: 'Bitbucket Cloud or Data Center' },
   { name: 'Azure DevOps', value: 'azure-devops', description: 'Azure Repos and Pipelines' },
   { name: 'None / Git only', value: 'none', description: 'Local git without a hosting platform' },
