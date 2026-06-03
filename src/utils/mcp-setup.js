@@ -50,6 +50,11 @@ export function checkPrerequisites() {
 // ── API Key Validation ───────────────────────────────────────────────
 
 const KEY_VALIDATORS = {
+  gemini: {
+    keyName: 'GEMINI_API_KEY',
+    check: (v) => /^AIza[0-9A-Za-z_-]{30,}$/.test(v),
+    hint: 'Gemini API keys usually start with AIza — get one free at aistudio.google.com/apikey',
+  },
   supabase: {
     keyName: 'SUPABASE_ACCESS_TOKEN',
     check: (v) => /^sbp_/.test(v) || v.startsWith('eyJ'),

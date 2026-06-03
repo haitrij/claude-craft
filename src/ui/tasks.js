@@ -57,11 +57,19 @@ export async function runExistingSetupTasks(targetDir, { detectExistingSetup, ex
       },
     },
     {
-      title: 'Removing previous configuration',
+      title: 'Backing up and removing previous configuration',
       skip: (ctx) => ctx.skip,
       task: async (ctx, task) => {
-        removeExistingSetup(targetDir);
-        task.title = 'Previous .claude/ configuration removed';
+        const { backupPath } = await removeExistingSetup(targetDir);
+        ctx.backupPath = backupPath;
+        if (backupPath) {
+          const rel = backupPath.startsWith(targetDir)
+            ? backupPath.slice(targetDir.length).replace(/^[\\/]/, '')
+            : backupPath;
+          task.title = `Previous configuration backed up to ${rel}, then removed`;
+        } else {
+          task.title = 'Previous .claude/ configuration removed';
+        }
       },
     },
   ]);
