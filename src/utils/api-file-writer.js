@@ -67,14 +67,29 @@ export async function writeApiFiles(files, targetDir, opts = {}) {
       merged = deepMerge(merged, obj);
     }
 
-    // If this is settings.json and has mcpServers, filter to selected MCPs and inject keys
-    if (relativePath === '.claude/settings.json' && merged.mcpServers && opts.selectedMcpIds) {
+    // MCP servers live in .mcp.json (current Claude Code). Older servers emitted
+    // them into .claude/settings.json — handle both for backward compatibility.
+    // Filter to selected MCPs and inject user-provided keys.
+    if ((relativePath === '.mcp.json' || relativePath === '.claude/settings.json')
+        && merged.mcpServers && opts.selectedMcpIds) {
       const filtered = {};
       for (const [id, serverConfig] of Object.entries(merged.mcpServers)) {
         if (opts.selectedMcpIds.includes(id)) {
-          // Inject user-provided API keys
-          if (opts.mcpKeys && opts.mcpKeys[id]) {
-            serverConfig.env = { ...serverConfig.env, ...opts.mcpKeys[id] };
+          const keys = opts.mcpKeys && opts.mcpKeys[id];
+          if (keys) {
+            // stdio servers carry env vars; http/sse servers carry auth headers
+            // with ${ENV_VAR} placeholders to substitute.
+            if (serverConfig.command) {
+              serverConfig.env = { ...serverConfig.env, ...keys };
+            }
+            if (serverConfig.headers) {
+              for (const h of Object.keys(serverConfig.headers)) {
+                serverConfig.headers[h] = String(serverConfig.headers[h]).replace(
+                  /\$\{([A-Z0-9_]+)\}/g,
+                  (m, name) => (keys[name] != null ? keys[name] : m),
+                );
+              }
+            }
           }
           filtered[id] = serverConfig;
         }
@@ -153,17 +168,19 @@ export function buildFileList(apiResponse) {
       // Single-file candidates
       files.push(candidate.file);
     } else if (candidate.category === 'mcp' && candidate.mcpConfig) {
-      // MCP candidates: generate json-merge entry for settings.json
+      // MCP candidates: generate json-merge entry for .mcp.json
       const serverConfig = {};
       if (candidate.mcpConfig.command) {
         serverConfig.command = candidate.mcpConfig.command;
         if (candidate.mcpConfig.args?.length) serverConfig.args = candidate.mcpConfig.args;
       } else if (candidate.mcpConfig.url) {
+        // Normalize legacy 'url' transport to 'http' (valid: stdio|http|sse|ws).
+        const t = candidate.mcpConfig.transport;
+        serverConfig.type = (t === 'sse') ? 'sse' : 'http';
         serverConfig.url = candidate.mcpConfig.url;
-        serverConfig.type = candidate.mcpConfig.transport || 'url';
       }
       files.push({
-        relativePath: '.claude/settings.json',
+        relativePath: '.mcp.json',
         content: JSON.stringify({ mcpServers: { [candidate.id]: serverConfig } }),
         type: 'json-merge',
       });

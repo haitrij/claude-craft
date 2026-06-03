@@ -229,9 +229,14 @@ export function extractPackageName(command) {
  * Verify an MCP package exists in the npm registry.
  * Returns { success, version?, packageName?, error? }.
  */
+/** Remote (non-stdio) transports have no npm package / command to spawn. */
+function isRemoteTransport(transport) {
+  return transport === 'url' || transport === 'http' || transport === 'sse' || transport === 'ws';
+}
+
 export async function verifyMcpPackage(mcp) {
-  if (mcp.transport === 'url') {
-    return { success: true, type: 'url', url: mcp.url };
+  if (isRemoteTransport(mcp.transport)) {
+    return { success: true, type: mcp.transport || 'http', url: mcp.url };
   }
 
   const packageName = extractPackageName(mcp.command);
@@ -367,7 +372,7 @@ async function healthCheckStdio(mcp, env = {}, targetDir = process.cwd()) {
  * Returns { success, error? }.
  */
 export async function healthCheckMcp(mcp, env = {}, targetDir = process.cwd()) {
-  if (mcp.transport === 'url') {
+  if (isRemoteTransport(mcp.transport)) {
     return healthCheckUrl(mcp.url);
   }
   return healthCheckStdio(mcp, env, targetDir);
