@@ -47,9 +47,10 @@ program
   .version(VERSION);
 
 program
-  .command('auth <key>')
-  .description('Store API key for claude-craft server')
-  .option('-s, --server <url>', 'Server URL (default: https://api.claude-craft.dev)')
+  .command('auth')
+  .description('Sign in to claude-craft by opening your browser')
+  .option('--no-browser', 'Print a URL to open manually and paste the code (headless/SSH)')
+  .option('--token <key>', 'Sign in non-interactively with an existing ck_live_ API key (CI)')
   .action(runAuth);
 
 program

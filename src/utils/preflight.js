@@ -70,7 +70,7 @@ export async function runPreflight(options = {}) {
       apiConfig = await promptForApiKey();
     } else {
       console.log('    ' + dotPad('API key', colors.error('missing')));
-      envErrors.push('No API key configured. Run: ccraft auth <key>');
+      envErrors.push('No API key configured. Run: ccraft auth');
     }
   }
 
@@ -84,7 +84,7 @@ export async function runPreflight(options = {}) {
         console.log('    ' + dotPad('API key', colors.success('valid')));
       } else {
         console.log('    ' + dotPad('API key', colors.error('invalid')));
-        envErrors.push('API key is invalid or expired. Run: ccraft auth <new-key>\n  Get a new key at https://claude-craft.cc/');
+        envErrors.push('API key is invalid or expired. Run: ccraft auth\n  Get a new key at https://claude-craft.cc/');
       }
     } catch (err) {
       if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {

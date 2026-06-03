@@ -9,8 +9,12 @@ import { VERSION } from '../constants.js';
 
 const CONFIG_DIR = join(homedir(), '.claude-craft');
 const CONFIG_PATH = join(CONFIG_DIR, 'config.json');
-function getDefaultServerUrl() {
-  return 'https://api.claude-craft.cc';
+export function getDefaultServerUrl() {
+  return process.env.CLAUDE_CRAFT_API_URL || 'https://api.claude-craft.cc';
+}
+
+export function getWebUrl() {
+  return process.env.CLAUDE_CRAFT_WEB_URL || 'https://claude-craft.cc';
 }
 const TIMEOUT_MS = 30_000;
 
@@ -53,7 +57,7 @@ export async function callGenerate(analysis, options = {}) {
   const config = loadConfig();
   if (!config?.apiKey) {
     throw new ApiError(
-      'No API key configured. Run: ccraft auth <key>',
+      'No API key configured. Run: ccraft auth',
       'NO_API_KEY',
     );
   }
@@ -98,7 +102,7 @@ export async function callGenerate(analysis, options = {}) {
       case 401:
       case 403:
         throw new ApiError(
-          body.error || 'API key invalid or expired. Run: ccraft auth <new-key>',
+          body.error || 'API key invalid or expired. Run: ccraft auth',
           'AUTH_ERROR',
           res.status,
         );
@@ -139,7 +143,7 @@ export async function callUpdate(currentAnalysis, previousAnalysis, installedRel
   const config = loadConfig();
   if (!config?.apiKey) {
     throw new ApiError(
-      'No API key configured. Run: ccraft auth <key>',
+      'No API key configured. Run: ccraft auth',
       'NO_API_KEY',
     );
   }
@@ -184,7 +188,7 @@ export async function callUpdate(currentAnalysis, previousAnalysis, installedRel
       case 401:
       case 403:
         throw new ApiError(
-          body.error || 'API key invalid or expired. Run: ccraft auth <new-key>',
+          body.error || 'API key invalid or expired. Run: ccraft auth',
           'AUTH_ERROR',
           res.status,
         );
@@ -253,4 +257,49 @@ export async function validateKey(apiKey, serverUrl) {
 
   const body = await res.json();
   return body.valid === true;
+}
+
+/**
+ * Exchange a CLI authorization code + PKCE verifier for a minted API key.
+ * Called by the browser-login flow after the loopback server captures the code.
+ *
+ * @param {string} code     - Signed JWT authorization code from the web consent flow
+ * @param {string} verifier - PKCE verifier (hex)
+ * @param {string} [serverUrl]
+ * @returns {Promise<{ apiKey: string, user: { email: string, name: string } }>}
+ */
+export async function exchangeCliCode(code, verifier, serverUrl) {
+  const url = `${serverUrl || getDefaultServerUrl()}/api/auth/cli/token`;
+
+  let res;
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Claude-Craft-Version': VERSION,
+        'X-Claude-Craft-Api-Version': '1',
+        'Connection': 'close',
+      },
+      body: JSON.stringify({ code, verifier }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+  } catch {
+    throw new ApiError(
+      'Could not reach server to complete sign-in.',
+      'NETWORK_ERROR',
+    );
+  }
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new ApiError(body.error || 'Sign-in failed', 'AUTH_ERROR', res.status);
+  }
+
+  return res.json(); // { apiKey, user }
 }

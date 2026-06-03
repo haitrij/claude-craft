@@ -11,7 +11,7 @@ export async function runLogout() {
   const config = loadConfig();
 
   if (!config?.apiKey) {
-    logger.warn('No API key is currently stored.');
+    logger.warn("You're not signed in.");
     return;
   }
 
@@ -19,6 +19,6 @@ export async function runLogout() {
   saveConfig(rest);
 
   console.log();
-  logger.success('API key removed from ~/.claude-craft/config.json');
+  logger.success('Signed out — credentials removed from ~/.claude-craft/config.json');
   console.log();
 }
