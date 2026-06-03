@@ -1,6 +1,6 @@
 {
   "name": "ccraft",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "Intelligent Claude Code project configurator — role-aware agents, skills, rules, MCPs, and workflows",
   "type": "module",
   "bin": {
